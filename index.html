@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Harmonogram FSV UCM</title>
+<meta name="description" content="Harmonogram akcií Fakulty sociálnych vied UCM v Trnave — zimný semester akad. rok 2026/2027.">
+
+<!-- Favicon set -->
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#F28C28">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Harmonogram FSV">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Source+Sans+3:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+  :root{
+    --bg:#FAF7F1;
+    --surface:#FFFFFF;
+    --surface-alt:#F1ECE0;
+    --border:#E4DCC8;
+    --text:#221F1A;
+    --text-muted:#726C5C;
+    --accent:#1F3A5F;
+    --accent-fsv:#1F3A5F;      --accent-fsv-bg:#E6ECF3;
+    --accent-veltrh:#8C611A;   --accent-veltrh-bg:#F4E8CF;
+    --accent-iny:#8C3D52;      --accent-iny-bg:#F5E1E7;
+    --danger:#A33E2A;
+    --shadow: 0 1px 2px rgba(34,31,26,0.06), 0 8px 24px rgba(34,31,26,0.05);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#15181D;
+      --surface:#1D2129;
+      --surface-alt:#242933;
+      --border:#333A46;
+      --text:#ECE9E1;
+      --text-muted:#9CA3AF;
+      --accent:#8FB3DE;
+      --accent-fsv:#8FB3DE;    --accent-fsv-bg:#22334A;
+      --accent-veltrh:#E3B563; --accent-veltrh-bg:#3B2E14;
+      --accent-iny:#E39BB0;    --accent-iny-bg:#3A222B;
+      --danger:#E2836C;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#15181D;
+    --surface:#1D2129;
+    --surface-alt:#242933;
+    --border:#333A46;
+    --text:#ECE9E1;
+    --text-muted:#9CA3AF;
+    --accent:#8FB3DE;
+    --accent-fsv:#8FB3DE;    --accent-fsv-bg:#22334A;
+    --accent-veltrh:#E3B563; --accent-veltrh-bg:#3B2E14;
+    --accent-iny:#E39BB0;    --accent-iny-bg:#3A222B;
+    --danger:#E2836C;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:"Source Sans 3", system-ui, -apple-system, sans-serif;
+    padding-inline:16px;
+    padding-block:0 40px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:700px; margin:0 auto;}
+
+  header{
+    position:sticky; top:0; z-index:5;
+    background:var(--bg);
+    padding-block:22px 14px;
+    border-bottom:1px solid var(--border);
+    display:flex; flex-direction:column; gap:12px;
+  }
+  h1{
+    font-family:"Fraunces", Georgia, serif;
+    font-weight:600;
+    font-size:clamp(1.5rem, 4vw, 2rem);
+    line-height:1.15;
+    margin:0;
+    text-wrap:balance;
+  }
+  .subtitle{
+    color:var(--text-muted);
+    font-size:0.95rem;
+    margin:2px 0 0;
+  }
+  .filters{
+    display:flex; gap:8px; overflow-x:auto; padding-bottom:2px;
+    scrollbar-width:none;
+  }
+  .filters::-webkit-scrollbar{display:none;}
+  .chip{
+    flex:none;
+    font-family:"Source Sans 3", sans-serif;
+    font-size:0.85rem; font-weight:600;
+    padding:7px 14px;
+    border-radius:999px;
+    border:1px solid var(--border);
+    background:var(--surface);
+    color:var(--text-muted);
+    cursor:pointer;
+    white-space:nowrap;
+    transition:background .15s, color .15s, border-color .15s;
+  }
+  .chip[aria-pressed="true"]{
+    background:var(--text); color:var(--bg); border-color:var(--text);
+  }
+
+  main{padding-top:18px;}
+
+  .today-marker{
+    display:flex; align-items:center; gap:10px;
+    color:var(--danger);
+    font-family:"IBM Plex Mono", monospace;
+    font-size:0.78rem; font-weight:600; letter-spacing:.04em;
+    text-transform:uppercase;
+    margin:22px 0;
+  }
+  .today-marker::before, .today-marker::after{
+    content:""; flex:1; height:1px; background:var(--danger); opacity:.35;
+  }
+
+  .month-heading{
+    font-family:"Fraunces", Georgia, serif;
+    font-weight:600;
+    font-size:1.15rem;
+    color:var(--text);
+    margin:30px 0 10px;
+    text-transform:capitalize;
+  }
+  .month-heading:first-of-type{margin-top:6px;}
+
+  .event-list{display:flex; flex-direction:column; gap:8px;}
+
+  .event{
+    display:flex; gap:14px;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:12px 14px;
+    box-shadow:var(--shadow);
+    transition:opacity .15s;
+  }
+  .event.is-past{opacity:.55;}
+
+  .badge{
+    flex:none;
+    width:58px;
+    border-radius:10px;
+    background:var(--surface-alt);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:6px 2px;
+    font-family:"IBM Plex Mono", monospace;
+  }
+  .badge .day{font-size:1.05rem; font-weight:600; line-height:1.1; font-variant-numeric:tabular-nums;}
+  .badge .mon{font-size:0.62rem; font-weight:600; text-transform:uppercase; letter-spacing:.05em; color:var(--text-muted); margin-top:2px;}
+
+  .content{flex:1; min-width:0;}
+  .row-top{display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;}
+  .title{font-weight:600; font-size:1rem; line-height:1.35;}
+  .cat-chip{
+    font-size:0.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.03em;
+    padding:2px 8px; border-radius:999px; flex:none;
+  }
+  .cat-chip.fsv{color:var(--accent-fsv); background:var(--accent-fsv-bg);}
+  .cat-chip.veltrh{color:var(--accent-veltrh); background:var(--accent-veltrh-bg);}
+  .cat-chip.iny{color:var(--accent-iny); background:var(--accent-iny-bg);}
+  .meta{color:var(--text-muted); font-size:0.87rem; margin-top:3px; line-height:1.4;}
+  .tbd-flag{color:var(--danger); font-weight:600;}
+
+  .empty-note{
+    color:var(--text-muted); font-size:0.9rem;
+    border:1px dashed var(--border); border-radius:12px;
+    padding:16px; text-align:center; margin-top:8px;
+  }
+
+  footer{
+    margin-top:40px; padding-top:18px; border-top:1px solid var(--border);
+    color:var(--text-muted); font-size:0.85rem; line-height:1.6;
+  }
+  footer a{color:var(--accent);}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Harmonogram akcií FSV UCM</h1>
+      <p class="subtitle">zimný semester akad. rok 2026/2027</p>
+    </div>
+    <div class="filters" id="filters"></div>
+  </header>
+  <main>
+    <div id="list"></div>
+  </main>
+  <footer>
+    Toto je prehľadové zobrazenie harmonogramu FSV UCM (aktualizované 10.&nbsp;9.&nbsp;2026). Pre doplnenie alebo úpravu dátumov akcií či termínov kontaktuj Braňa :)
+  </footer>
+</div>
+
+<script>
+  var EVENTS = [
+    {id:'e19', title:'Deadline: anotácie tém k FSV ON TOUR', cat:'iny', start:'2026-09-11'},
+    {id:'e12', title:'Kam na vysokú – Trenčín', cat:'veltrh', start:'2026-09-16'},
+    {id:'e13', title:'Kam na vysokú – Žilina', cat:'veltrh', start:'2026-09-17'},
+    {id:'e14', title:'Kam na vysokú – Trnava', cat:'veltrh', start:'2026-09-18'},
+    {id:'e15', title:'Gaudeamus Košice', cat:'veltrh', start:'2026-09-22', end:'2026-09-23'},
+    {id:'e1',  title:'Uvítací deň FSV', cat:'fsv', start:'2026-10-13'},
+    {id:'e16', title:'Gaudeamus Bratislava', cat:'veltrh', start:'2026-10-06', end:'2026-10-08'},
+    {id:'e2',  title:'Hackathon BRIE', cat:'fsv', start:'2026-10-27'},
+    {id:'e3',  title:'Konferencia k projektu V4 Ombudslink', cat:'fsv', start:'2026-11-06', note:'Záštitu ponesie Fakulta sociálnych vied UCM', location:'miestnosť BU1'},
+    {id:'e4',  title:'Oranžová kvapka krvi 4.0', cat:'fsv', start:'2026-11-10'},
+    {id:'e5',  title:'Hosť na diskusiu', cat:'fsv', start:'2026-11-11'},
+    {id:'e17', title:'Gaudeamus Nitra', cat:'veltrh', start:'2026-11-03', end:'2026-11-04'},
+    {id:'e6',  title:'Unikvíz FSV', cat:'fsv', start:'2026-11-30', tbd:true, displayDate:'november 2026'},
+    {id:'e7',  title:'PUBLICY 2026', cat:'fsv', start:'2026-12-01'},
+    {id:'e8',  title:'Recepcia Divadlo J. Palárika', cat:'fsv', start:'2026-12-01', note:'Recepcia o 17:00, predstavenie o 19:00'},
+    {id:'e9',  title:'VR FSV UCM', cat:'fsv', start:'2026-12-02'},
+    {id:'e11', title:'Exkurzia do Európskeho parlamentu v Štrasburgu', cat:'fsv', start:'2026-12-13', end:'2026-12-16'},
+    {id:'e10', title:'Vianočný večierok FSV UCM', cat:'fsv', start:'2026-12-15', location:'reštaurácia Maxim, Trojičné námestie'}
+  ];
+
+  var CATS = {
+    fsv:    {label:'FSV UCM'},
+    veltrh: {label:'Veľtrhy VŠ'},
+    iny:    {label:'Iné'}
+  };
+
+  var MONTHS_GEN = ['januára','februára','marca','apríla','mája','júna','júla','augusta','septembra','októbra','novembra','decembra'];
+  var MONTHS_NOM = ['Január','Február','Marec','Apríl','Máj','Jún','Júl','August','September','Október','November','December'];
+  var MONTHS_ABBR = ['jan','feb','mar','apr','máj','jún','júl','aug','sep','okt','nov','dec'];
+
+  function parseISO(s){
+    var p = s.split('-');
+    return new Date(Number(p[0]), Number(p[1])-1, Number(p[2]));
+  }
+  function todayMidnight(){
+    var d = new Date();
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  }
+  function fmtBadge(ev){
+    var s = parseISO(ev.start);
+    if(ev.end && ev.end !== ev.start){
+      var e = parseISO(ev.end);
+      if(s.getMonth() === e.getMonth()){
+        return {day: s.getDate()+'–'+e.getDate(), mon: MONTHS_ABBR[s.getMonth()]};
+      }
+      return {day: s.getDate()+'.'+(s.getMonth()+1)+'.–'+e.getDate()+'.'+(e.getMonth()+1)+'.', mon: ''};
+    }
+    return {day: String(s.getDate()), mon: MONTHS_ABBR[s.getMonth()]};
+  }
+  function monthKey(ev){
+    var s = parseISO(ev.start);
+    return s.getFullYear()+'-'+String(s.getMonth()+1).padStart(2,'0');
+  }
+  function monthLabel(key){
+    var p = key.split('-');
+    return MONTHS_NOM[Number(p[1])-1] + ' ' + p[0];
+  }
+
+  var activeFilter = 'all';
+
+  function renderFilters(){
+    var el = document.getElementById('filters');
+    var cats = ['all'].concat(Object.keys(CATS));
+    el.innerHTML = cats.map(function(c){
+      var label = c === 'all' ? 'Všetko' : CATS[c].label;
+      var pressed = c === activeFilter;
+      return '<button class="chip" data-cat="'+c+'" aria-pressed="'+pressed+'">'+label+'</button>';
+    }).join('');
+    Array.prototype.forEach.call(el.querySelectorAll('.chip'), function(btn){
+      btn.addEventListener('click', function(){
+        activeFilter = btn.getAttribute('data-cat');
+        renderFilters();
+        renderList();
+      });
+    });
+  }
+
+  function renderList(){
+    var today = todayMidnight();
+    var items = EVENTS.filter(function(ev){
+      return activeFilter === 'all' || ev.cat === activeFilter;
+    }).slice().sort(function(a,b){ return a.start < b.start ? -1 : 1; });
+
+    var listEl = document.getElementById('list');
+    if(items.length === 0){
+      listEl.innerHTML = '<p class="empty-note">V tejto kategórii zatiaľ nie sú evidované žiadne akcie.</p>';
+      return;
+    }
+
+    var html = '';
+    var lastMonth = null;
+    var todayInserted = false;
+
+    items.forEach(function(ev){
+      var mk = monthKey(ev);
+      if(mk !== lastMonth){
+        if(lastMonth !== null) html += '</div>';
+        html += '<h2 class="month-heading">'+monthLabel(mk)+'</h2><div class="event-list">';
+        lastMonth = mk;
+      }
+
+      var evStart = parseISO(ev.start);
+      var evEnd = ev.end ? parseISO(ev.end) : evStart;
+      if(!todayInserted && evStart >= today){
+        html = insertTodayMarker(html, today);
+        todayInserted = true;
+      }
+
+      var isPast = evEnd < today;
+      var badge = fmtBadge(ev);
+      var catInfo = CATS[ev.cat] || {label: ev.cat};
+
+      var metaParts = [];
+      if(ev.tbd) metaParts.push('<span class="tbd-flag">presný dátum bude upresnený</span>');
+      if(ev.note) metaParts.push(ev.note);
+      if(ev.location) metaParts.push(ev.location);
+
+      html += ''
+        + '<div class="event'+(isPast?' is-past':'')+'">'
+        + '<div class="badge"><span class="day">'+(ev.tbd ? '?' : badge.day)+'</span><span class="mon">'+(ev.tbd ? '' : badge.mon)+'</span></div>'
+        + '<div class="content">'
+        +   '<div class="row-top"><span class="title">'+ev.title+'</span><span class="cat-chip '+ev.cat+'">'+catInfo.label+'</span></div>'
+        +   (metaParts.length ? '<div class="meta">'+metaParts.join(' · ')+'</div>' : '')
+        + '</div>'
+        + '</div>';
+    });
+    html += '</div>';
+
+    if(!todayInserted){
+      html = insertTodayMarker(html, today);
+    }
+
+    listEl.innerHTML = html;
+  }
+
+  function insertTodayMarker(html, today){
+    var label = today.getDate()+'. '+MONTHS_GEN[today.getMonth()]+' '+today.getFullYear();
+    return html + '<div class="today-marker">dnes · '+label+'</div>';
+  }
+
+  renderFilters();
+  renderList();
+</script>
+</body>
+</html>
